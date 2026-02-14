@@ -12,66 +12,62 @@ function capitalize(s: string) {
 
 // Arrays of words for phrase generation
 const verbs = [
-  "calibrate",
-  "synchronize",
-  "stabilize",
-  "verify",
-  "trace",
-  "align",
-  "authorize",
-  "commit",
-  "handshake",
-  "harden",
+  "check",
+  "open",
+  "read",
+  "pass",
+  "say",
+  "clear",
+  "start",
+  "go",
 ]
 
 const subjects = [
-  "liveness signal",
-  "voiceprint entropy",
-  "quantum channel",
-  "acoustic hash",
-  "zero-knowledge proof",
-  "kyber exchange",
-  "dilithium signature",
-  "secure enclave",
-  "challenge nonce",
-  "session key",
+  "blue door",
+  "green light",
+  "fast track",
+  "red line",
+  "main gate",
+  "new code",
+  "open path",
+  "clear zone",
 ]
 
-const linkers = ["within", "against", "through", "under", "inside", "amid", "across"]
+const linkers = ["in", "on", "at", "for", "with"]
 
 const conditions = [
-  "adversarial conditions",
-  "replay resistance",
-  "time drift",
-  "low latency",
-  "cold start",
-  "side-channel noise",
-  "packet loss",
-  "band-limited input",
+  "right now",
+  "today",
+  "fast",
+  "clean",
+  "clear",
+  "smooth",
+  "easy",
+  "safe",
 ]
 
 const actions = [
-  "then confirm integrity",
-  "then commit and seal",
-  "then acknowledge receipt",
-  "then lock and proceed",
-  "then finalize the exchange",
-  "then attest and continue",
+  "then move on",
+  "then go forward",
+  "then you pass",
+  "then all clear",
+  "then keep going",
+  "then locked in",
 ]
 
 const secondSubjects = [
-  "challenge phrase",
-  "nonce binding",
-  "session transcript",
-  "enclave state",
-  "acoustic checksum",
-  "proof transcript",
+  "way forward",
+  "next step",
+  "clear road",
+  "main access",
+  "full reach",
+  "safe move",
 ]
 
 // Function to maybe add an adjective to a phrase
 function maybeAdjective() {
-  const adjectives = ["hardened", "zero-trust", "quantum-safe", "operator-grade", "stealth", "resilient"]
-  return Math.random() < 0.5 ? sample(adjectives) + " " : ""
+  const adjectives = ["big", "small", "new", "old", "quick", "slow"]
+  return Math.random() < 0.3 ? sample(adjectives) + " " : ""
 }
 
 // Function to generate a lively phrase
