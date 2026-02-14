@@ -12,62 +12,66 @@ function capitalize(s: string) {
 
 // Arrays of words for phrase generation
 const verbs = [
-  "check",
-  "open",
-  "read",
-  "pass",
-  "say",
-  "clear",
-  "start",
-  "go",
+  "remember",
+  "think about",
+  "imagine",
+  "picture",
+  "miss",
+  "love",
+  "dream of",
+  "believe in",
+  "hold onto",
+  "trust",
 ]
 
 const subjects = [
-  "blue door",
-  "green light",
-  "fast track",
-  "red line",
-  "main gate",
-  "new code",
-  "open path",
-  "clear zone",
+  "that summer morning",
+  "the old coffee shop",
+  "my first win",
+  "quiet moments alone",
+  "midnight conversations",
+  "the place I felt home",
+  "late night drives",
+  "old songs we shared",
+  "rainy Sunday afternoons",
+  "the person I want to be",
 ]
 
-const linkers = ["in", "on", "at", "for", "with"]
+const linkers = ["when", "where", "because", "even if", "as if"]
 
 const conditions = [
-  "right now",
-  "today",
-  "fast",
-  "clean",
-  "clear",
-  "smooth",
-  "easy",
-  "safe",
+  "everything was simple",
+  "the world was still",
+  "I felt truly alive",
+  "nothing else mattered",
+  "time stood still",
+  "I was completely myself",
+  "everything made sense",
+  "I could breathe easy",
 ]
 
 const actions = [
-  "then move on",
-  "then go forward",
-  "then you pass",
-  "then all clear",
-  "then keep going",
-  "then locked in",
+  "and know I'm exactly where I need to be",
+  "and feel grateful for it all",
+  "and believe things will work out",
+  "and trust myself again",
+  "and remember why it matters",
+  "and move forward stronger",
 ]
 
 const secondSubjects = [
-  "way forward",
-  "next step",
-  "clear road",
-  "main access",
-  "full reach",
-  "safe move",
+  "person I want to become",
+  "life I'm building",
+  "dreams I'm chasing",
+  "strength I carry",
+  "journey I'm on",
+  "future I believe in",
 ]
 
 // Function to maybe add an adjective to a phrase
 function maybeAdjective() {
-  const adjectives = ["big", "small", "new", "old", "quick", "slow"]
-  return Math.random() < 0.3 ? sample(adjectives) + " " : ""
+  const adjectives = [""]
+  return ""
 }
 
 // Function to generate a lively phrase
