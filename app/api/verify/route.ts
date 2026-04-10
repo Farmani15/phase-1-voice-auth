@@ -1,35 +1,5 @@
 import { NextResponse } from "next/server"
-
-// In-memory voice profiles (shared with /api/enroll)
-const voiceProfiles: {
-  id: string
-  name: string
-  enrolledAt: string
-  active: boolean
-  voiceHash?: string
-}[] = [
-  {
-    id: "voice-001",
-    name: "Alex Morgan",
-    enrolledAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
-    active: true,
-    voiceHash: "hash-alex-001",
-  },
-  {
-    id: "voice-002",
-    name: "Jordan Taylor",
-    enrolledAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
-    active: true,
-    voiceHash: "hash-jordan-001",
-  },
-  {
-    id: "voice-003",
-    name: "Casey Chen",
-    enrolledAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
-    active: true,
-    voiceHash: "hash-casey-001",
-  },
-]
+import { getVoiceProfiles, getVoiceProfileById } from "@/lib/voice-storage"
 
 // Placeholder verification endpoint.
 // In a real implementation, forward audio + phrase + nonce to FastAPI for:
@@ -43,6 +13,8 @@ export async function POST(req: Request) {
   const audio = form.get("audio")
   const voiceId = form.get("voiceId") // Which enrolled voice to verify
 
+  console.log("[v0] Verify request:", { phrase, nonce, hasAudio: !!audio, voiceId })
+
   // All required fields must be present
   const hasAllFields = Boolean(phrase && nonce && audio && voiceId)
   
@@ -51,10 +23,15 @@ export async function POST(req: Request) {
   }
 
   // Check if the voice profile exists and is active
-  const voiceProfile = voiceProfiles.find((v) => v.id === voiceId && v.active)
-  if (!voiceProfile) {
+  const voiceProfile = getVoiceProfileById(voiceId as string)
+  if (!voiceProfile || !voiceProfile.active) {
+    console.log("[v0] Voice profile not found or inactive:", voiceId)
+    const profiles = getVoiceProfiles()
+    console.log("[v0] Available profiles:", profiles.map(p => ({ id: p.id, name: p.name })))
     return NextResponse.json({ ok: false, error: "Voice profile not found or inactive" }, { status: 400 })
   }
+
+  console.log("[v0] Verifying against profile:", voiceProfile.name)
 
   // Simulate short processing time
   await new Promise((r) => setTimeout(r, 400))

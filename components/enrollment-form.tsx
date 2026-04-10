@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useRef } from "react"
+import { useState, useRef, useEffect } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { useToast } from "@/hooks/use-toast"
@@ -14,9 +14,30 @@ export function EnrollmentForm({ onSuccess }: EnrollmentFormProps) {
   const [name, setName] = useState("")
   const [isRecording, setIsRecording] = useState(false)
   const [isSubmitting, setIsSubmitting] = useState(false)
+  const [recordingTime, setRecordingTime] = useState(0)
   const mediaRecorderRef = useRef<MediaRecorder | null>(null)
   const chunksRef = useRef<Blob[]>([])
+  const timerRef = useRef<NodeJS.Timeout | null>(null)
   const { toast } = useToast()
+
+  // Timer effect
+  useEffect(() => {
+    if (isRecording) {
+      timerRef.current = setInterval(() => {
+        setRecordingTime((prev) => prev + 1)
+      }, 1000)
+    } else {
+      if (timerRef.current) {
+        clearInterval(timerRef.current)
+      }
+    }
+
+    return () => {
+      if (timerRef.current) {
+        clearInterval(timerRef.current)
+      }
+    }
+  }, [isRecording])
 
   const startRecording = async () => {
     try {
@@ -33,12 +54,14 @@ export function EnrollmentForm({ onSuccess }: EnrollmentFormProps) {
       }
 
       mediaRecorder.start()
+      setRecordingTime(0)
       setIsRecording(true)
       toast({
-        title: "Recording started",
-        description: "Say your passphrase clearly",
+        title: "🎤 Recording started",
+        description: "Speak clearly for 10-15 seconds",
       })
     } catch (error) {
+      console.error("[v0] Recording error:", error)
       toast({
         title: "Microphone access denied",
         description: "Enable microphone to record voice",
@@ -53,8 +76,8 @@ export function EnrollmentForm({ onSuccess }: EnrollmentFormProps) {
       mediaRecorderRef.current.stream.getTracks().forEach((track) => track.stop())
       setIsRecording(false)
       toast({
-        title: "Recording stopped",
-        description: "Ready to enroll",
+        title: "✓ Recording stopped",
+        description: `Captured ${recordingTime} seconds of audio`,
       })
     }
   }
@@ -84,6 +107,7 @@ export function EnrollmentForm({ onSuccess }: EnrollmentFormProps) {
       const audioBlob = new Blob(chunksRef.current, { type: "audio/wav" })
       const base64Audio = await blobToBase64(audioBlob)
 
+      console.log("[v0] Enrolling voice:", name)
       const response = await fetch("/api/enroll", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -93,17 +117,22 @@ export function EnrollmentForm({ onSuccess }: EnrollmentFormProps) {
         }),
       })
 
-      if (!response.ok) throw new Error("Enrollment failed")
+      if (!response.ok) {
+        const errData = await response.json()
+        throw new Error(errData.error || "Enrollment failed")
+      }
 
       const data = await response.json()
+      console.log("[v0] Enrollment response:", data)
 
       toast({
-        title: "Voice enrolled successfully",
+        title: "✓ Voice enrolled successfully",
         description: `${data.profile.name} is now registered`,
       })
 
       setName("")
       chunksRef.current = []
+      setRecordingTime(0)
       onSuccess?.()
     } catch (error) {
       console.error("[v0] Enrollment error:", error)
@@ -170,9 +199,24 @@ export function EnrollmentForm({ onSuccess }: EnrollmentFormProps) {
             </Button>
           )}
         </div>
-        <p className="text-xs text-gray-400">
-          {isRecording ? "Recording in progress..." : chunksRef.current.length > 0 ? "Recording captured" : "No recording yet"}
-        </p>
+        <div className="flex items-center justify-between">
+          <p className="text-xs text-gray-400">
+            {isRecording ? (
+              <span className="text-blue-400 font-medium animate-pulse">
+                🎤 Recording... Speak clearly (10-15 seconds recommended)
+              </span>
+            ) : chunksRef.current.length > 0 ? (
+              <span className="text-green-400">✓ Recording captured ({recordingTime}s)</span>
+            ) : (
+              "No recording yet"
+            )}
+          </p>
+          {isRecording && (
+            <span className="text-sm font-mono text-blue-400 tabular-nums">
+              {Math.floor(recordingTime / 60)}:{String(recordingTime % 60).padStart(2, "0")}
+            </span>
+          )}
+        </div>
       </div>
 
       <Button

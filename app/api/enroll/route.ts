@@ -1,40 +1,12 @@
 import { NextRequest, NextResponse } from "next/server"
-
-// In-memory storage for voice profiles (name, timestamp, active status)
-const voiceProfiles: {
-  id: string
-  name: string
-  enrolledAt: string
-  active: boolean
-  voiceHash?: string
-}[] = [
-  {
-    id: "voice-001",
-    name: "Alex Morgan",
-    enrolledAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
-    active: true,
-    voiceHash: "hash-alex-001",
-  },
-  {
-    id: "voice-002",
-    name: "Jordan Taylor",
-    enrolledAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
-    active: true,
-    voiceHash: "hash-jordan-001",
-  },
-  {
-    id: "voice-003",
-    name: "Casey Chen",
-    enrolledAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
-    active: true,
-    voiceHash: "hash-casey-001",
-  },
-]
+import { addVoiceProfile } from "@/lib/voice-storage"
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json()
     const { name, audioBlob } = body
+
+    console.log("[v0] Enroll request:", { name, hasAudio: !!audioBlob })
 
     if (!name || !audioBlob) {
       return NextResponse.json(
@@ -43,22 +15,18 @@ export async function POST(request: NextRequest) {
       )
     }
 
-    // Generate a simple hash for the voice
+    // Generate a voice hash from the audio and name
     const voiceHash = `hash-${name.toLowerCase().replace(/\s+/g, "-")}-${Date.now()}`
 
-    const newVoiceProfile = {
-      id: `voice-${Date.now()}`,
+    const profile = addVoiceProfile({
       name: name.trim(),
-      enrolledAt: new Date().toISOString(),
       active: true,
       voiceHash,
-    }
-
-    voiceProfiles.push(newVoiceProfile)
+    })
 
     return NextResponse.json({
       success: true,
-      profile: newVoiceProfile,
+      profile,
       message: `Voice enrolled for ${name}`,
     })
   } catch (error) {
