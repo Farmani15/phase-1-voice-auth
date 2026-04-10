@@ -19,6 +19,9 @@ export default function Page() {
             <Link href="/auth" className="hover:text-foreground transition-colors">
               Authenticate
             </Link>
+            <Link href="/enroll" className="hover:text-foreground transition-colors">
+              Enroll
+            </Link>
             <Link href="/admin" className="hover:text-foreground transition-colors">
               Console
             </Link>
