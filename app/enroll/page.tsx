@@ -16,7 +16,7 @@ interface VoiceStats {
 
 export default function EnrollPage() {
   const [refreshKey, setRefreshKey] = useState(0)
-  const { data } = useSWR<VoiceStats>("/api/voices", fetcher, { refreshInterval: 1000 })
+  const { data, mutate } = useSWR<VoiceStats>("/api/voices", fetcher, { refreshInterval: 500 })
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-800">
@@ -46,6 +46,7 @@ export default function EnrollPage() {
             <EnrollmentForm
               onSuccess={() => {
                 setRefreshKey((k) => k + 1)
+                mutate()
               }}
             />
           </div>

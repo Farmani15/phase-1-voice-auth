@@ -19,7 +19,8 @@ interface VoiceProfile {
 export function VoiceList() {
   const { data, isLoading, mutate } = useSWR<{ voices: VoiceProfile[] }>(
     "/api/voices",
-    fetcher
+    fetcher,
+    { refreshInterval: 500 }
   )
   const { toast } = useToast()
 
