@@ -8,29 +8,8 @@ export interface VoiceProfile {
 }
 
 // Persistent in-memory storage shared across API routes
-let voiceProfiles: VoiceProfile[] = [
-  {
-    id: "voice-001",
-    name: "Alex Morgan",
-    enrolledAt: new Date(Date.now() - 7 * 24 * 60 * 60 * 1000).toISOString(),
-    active: true,
-    voiceHash: "hash-alex-001",
-  },
-  {
-    id: "voice-002",
-    name: "Jordan Taylor",
-    enrolledAt: new Date(Date.now() - 3 * 24 * 60 * 60 * 1000).toISOString(),
-    active: true,
-    voiceHash: "hash-jordan-001",
-  },
-  {
-    id: "voice-003",
-    name: "Casey Chen",
-    enrolledAt: new Date(Date.now() - 1 * 24 * 60 * 60 * 1000).toISOString(),
-    active: true,
-    voiceHash: "hash-casey-001",
-  },
-]
+// Starts empty - only contains voices you actually enroll
+let voiceProfiles: VoiceProfile[] = []
 
 export function getVoiceProfiles(): VoiceProfile[] {
   return voiceProfiles

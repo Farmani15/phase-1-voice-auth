@@ -2,13 +2,21 @@
 
 import { useState } from "react"
 import Link from "next/link"
+import useSWR from "swr"
 import { EnrollmentForm } from "@/components/enrollment-form"
 import { VoiceList } from "@/components/voice-list"
 import { Button } from "@/components/ui/button"
 import { ArrowLeft } from "lucide-react"
 
+const fetcher = (url: string) => fetch(url).then((r) => r.json())
+
+interface VoiceStats {
+  voices: Array<{ id: string; name: string; active: boolean }>
+}
+
 export default function EnrollPage() {
   const [refreshKey, setRefreshKey] = useState(0)
+  const { data } = useSWR<VoiceStats>("/api/voices", fetcher, { refreshInterval: 1000 })
 
   return (
     <main className="min-h-screen bg-gradient-to-br from-slate-950 via-slate-900 to-slate-800">
@@ -51,16 +59,16 @@ export default function EnrollPage() {
         {/* Stats */}
         <div className="mt-12 grid grid-cols-3 gap-4">
           <div className="rounded-lg border border-white/10 bg-white/5 p-4 backdrop-blur-md text-center">
-            <p className="text-2xl font-bold text-blue-400">4</p>
+            <p className="text-2xl font-bold text-blue-400">{data?.voices.length || 0}</p>
             <p className="text-xs text-gray-400 mt-1">Voices Enrolled</p>
           </div>
           <div className="rounded-lg border border-white/10 bg-white/5 p-4 backdrop-blur-md text-center">
-            <p className="text-2xl font-bold text-green-400">2</p>
-            <p className="text-xs text-gray-400 mt-1">Verified</p>
+            <p className="text-2xl font-bold text-green-400">{data?.voices.filter(v => v.active).length || 0}</p>
+            <p className="text-xs text-gray-400 mt-1">Active</p>
           </div>
           <div className="rounded-lg border border-white/10 bg-white/5 p-4 backdrop-blur-md text-center">
-            <p className="text-2xl font-bold text-yellow-400">99.2%</p>
-            <p className="text-xs text-gray-400 mt-1">Match Rate</p>
+            <p className="text-2xl font-bold text-yellow-400">{data?.voices.length ? "100%" : "0%"}</p>
+            <p className="text-xs text-gray-400 mt-1">Coverage</p>
           </div>
         </div>
       </div>
