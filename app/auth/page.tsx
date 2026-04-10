@@ -12,10 +12,19 @@ import React from "react"
 
 const fetcher = (url: string) => fetch(url).then((r) => r.json())
 
+interface VoiceProfile {
+  id: string
+  name: string
+  enrolledAt: string
+  active: boolean
+}
+
 export default function AuthPage() {
   const { data, isLoading, mutate } = useSWR<{ phrase: string; nonce: string }>("/api/challenge", fetcher)
+  const { data: voices, isLoading: voicesLoading } = useSWR<VoiceProfile[]>("/api/voices", fetcher)
   const router = useRouter()
   const { toast } = useToast()
+  const [selectedVoiceId, setSelectedVoiceId] = React.useState<string>("")
 
   const [secondsLeft, setSecondsLeft] = React.useState(10)
 
@@ -51,21 +60,32 @@ export default function AuthPage() {
   }, [data?.phrase, refreshPhrase])
 
   async function handleVerify(audio: Blob | null) {
-    if (!audio || !data) return
+    if (!audio || !data || !selectedVoiceId) {
+      toast({ title: "Error", description: "Please select a voice profile first." })
+      return
+    }
     const fd = new FormData()
     fd.append("audio", audio, "voice.webm")
     fd.append("phrase", data.phrase)
     fd.append("nonce", data.nonce)
+    fd.append("voiceId", selectedVoiceId)
 
     const res = await fetch("/api/verify", { method: "POST", body: fd })
     const json = await res.json()
 
     if (json?.ok) {
-      router.push("/dashboard")
+      toast({ 
+        title: "Verified", 
+        description: `Welcome back, ${json.voiceName}`,
+      })
+      setTimeout(() => router.push("/dashboard"), 500)
     } else {
       // Refresh phrase on failure
       mutate()
-      alert("Verification failed. Please try the new phrase.")
+      toast({ 
+        title: "Verification failed", 
+        description: json.error || "Voice not recognized. Try the new phrase.",
+      })
     }
   }
 
@@ -110,6 +130,35 @@ export default function AuthPage() {
               Calm room, steady breath. Own the phrase. Press R to record, N for a new phrase.
             </p>
           </header>
+
+          <div className="mb-6 rounded-lg border border-white/10 bg-black/30 p-4">
+            <p className="text-xs text-muted-foreground mb-2">Who are you?</p>
+            {voicesLoading ? (
+              <div className="flex items-center gap-2 text-sm">
+                <Spinner className="size-4" /> Loading voices...
+              </div>
+            ) : voices && voices.length > 0 ? (
+              <select
+                value={selectedVoiceId}
+                onChange={(e) => setSelectedVoiceId(e.target.value)}
+                className="w-full rounded-md border border-white/10 bg-white/5 px-3 py-2 text-sm text-foreground hover:bg-white/10 focus:outline-none focus:ring-2 focus:ring-[color:var(--color-chart-2)]"
+              >
+                <option value="">Select a registered voice...</option>
+                {voices.map((v) => (
+                  <option key={v.id} value={v.id}>
+                    {v.name}
+                  </option>
+                ))}
+              </select>
+            ) : (
+              <p className="text-xs text-muted-foreground">
+                No voices registered yet.{" "}
+                <a href="/enroll" className="underline text-[color:var(--color-chart-2)] hover:no-underline">
+                  Enroll one now.
+                </a>
+              </p>
+            )}
+          </div>
 
           <div className="grid gap-6 sm:grid-cols-2">
             <div className="rounded-lg border border-white/10 bg-black/30 p-4">
